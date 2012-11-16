@@ -52,6 +52,7 @@
 #ifdef CONFIG_SAMSUNG_FASCINATE
 #include <mach/regs-gpio.h>
 #endif
+
 #include <linux/usb/gadget.h>
 #include <linux/fsa9480.h>
 #include <linux/pn544.h>
@@ -342,7 +343,6 @@ static struct s3cfb_lcd s6e63m0 = {
 #define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMC2 (11264 * SZ_1K)
 #define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_MFC0 (11264 * SZ_1K)
 #define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_MFC1 (11264 * SZ_1K)
-
 #elif defined CONFIG_S5PV210_TESTMEM
 #define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMC0 (8688 * SZ_1K)
 #define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMC2 (8688 * SZ_1K)
@@ -373,7 +373,6 @@ static struct s3cfb_lcd s6e63m0 = {
 					     (CONFIG_FB_S3C_NR_BUFFERS + \
 						 (CONFIG_FB_S3C_NUM_OVLY_WIN * \
 						  CONFIG_FB_S3C_NUM_BUF_OVLY_WIN)))
-
 #define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_JPEG (4096 * SZ_1K)
 //#define  S5PV210_ANDROID_PMEM_MEMSIZE_PMEM (2048 * SZ_1K)
 //#define  S5PV210_ANDROID_PMEM_MEMSIZE_PMEM_GPU1 (3000 * SZ_1K)
@@ -403,10 +402,8 @@ static struct s5p_media_device aries_media_devs[] = {
 		.memsize = S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMC0,
 		.paddr = 0,
 	},
-
 /*
 	[3] = {
-
 		.id = S5P_MDEV_FIMC1,
 		.name = "fimc1",
 		.bank = 1,
@@ -474,7 +471,15 @@ static struct s5pv210_cpufreq_voltage smdkc110_cpufreq_volt[] = {
 		.varm	= 1350000,
 		.vint	= 1150000,
 	}, {
-		.freq	= 1000000,
+		.freq	= 1300000,
+		.varm	= 1325000,
+		.vint	= 1125000,
+	}, {
+		.freq	= 1200000,
+		.varm	= 1275000,
+		.vint	= 1100000,
+	}, {
+		.freq	= 1100000,
 		.varm	= 1275000,
 		.vint	= 1100000,
 	}, {
@@ -2583,6 +2588,7 @@ static void fsa9480_usb_cb(bool attached)
 #endif  
 }
 
+
 static void fsa9480_charger_cb(bool attached)
 {
 	pr_info("%s: force_fast_charge: %s\n", __func__, "AC");
@@ -2734,6 +2740,7 @@ static void gp2a_gpio_init(void)
 	int ret = gpio_request(GPIO_PS_ON, "gp2a_power_supply_on");
 	if (ret)
 		printk(KERN_ERR "Failed to request gpio gp2a power supply.\n");
+
 }
 
 static struct i2c_board_info i2c_devs11[] __initdata = {
@@ -4939,7 +4946,7 @@ static int wlan_power_en(int onoff)
 		s3c_gpio_slp_setpull_updown(GPIO_WLAN_BT_EN,
 					S3C_GPIO_PULL_NONE);
 
-		msleep(200);
+		msleep(80);
 	} else {
 		gpio_set_value(GPIO_WLAN_nRST, GPIO_LEVEL_LOW);
 		s3c_gpio_slp_cfgpin(GPIO_WLAN_nRST, S3C_GPIO_SLP_OUT0);
