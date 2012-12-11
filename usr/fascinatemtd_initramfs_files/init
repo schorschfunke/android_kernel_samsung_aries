@@ -13,7 +13,6 @@ while ! busybox test -d /sys/devices/platform/s3c-sdhci.0/mmc_host/mmc0/mmc0:000
 	echo "Waiting for internal mmc..."
 	busybox sleep 1
 done
-
 /lvm/sbin/lvm vgscan --mknodes --ignorelockingfailure
 /lvm/sbin/lvm vgchange -aly --ignorelockingfailure
 
