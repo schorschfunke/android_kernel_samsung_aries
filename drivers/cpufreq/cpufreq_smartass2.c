@@ -35,7 +35,6 @@
 #include <asm/cputime.h>
 #include <linux/earlysuspend.h>
 
-
 /******************** Tunable parameters: ********************/
 
 /*
@@ -800,16 +799,20 @@ static struct early_suspend smartass2_power_suspend = {
 static int __init cpufreq_smartass2_init(void)
 {
 	unsigned int i;
+	unsigned long min_freq;
 	struct smartass2_info_s *this_smartass2;
+	min_freq = DEFAULT_SLEEP_IDEAL_FREQ;
 	debug_mask = 0;
 	up_rate_us = DEFAULT_UP_RATE_US;
 	down_rate_us = DEFAULT_DOWN_RATE_US;
-	sleep_ideal_freq = DEFAULT_SLEEP_IDEAL_FREQ;
-	sleep_wakeup_freq = DEFAULT_SLEEP_WAKEUP_FREQ;
-	awake_ideal_freq = DEFAULT_AWAKE_IDEAL_FREQ;
+	sleep_ideal_freq = min_freq;
+ 	sleep_wakeup_freq = DEFAULT_SLEEP_WAKEUP_FREQ;
+ 	awake_ideal_freq = DEFAULT_AWAKE_IDEAL_FREQ;
 	sample_rate_jiffies = DEFAULT_SAMPLE_RATE_JIFFIES;
-	ramp_up_step = DEFAULT_RAMP_UP_STEP;
-	ramp_down_step = DEFAULT_RAMP_DOWN_STEP;
+	/* ramp_up_step = DEFAULT_RAMP_UP_STEP; */
+ 	ramp_up_step = min_freq * 2;
+ 	/* ramp_down_step = DEFAULT_RAMP_DOWN_STEP; */
+ 	ramp_down_step = min_freq * 2;
 	max_cpu_load = DEFAULT_MAX_CPU_LOAD;
 	min_cpu_load = DEFAULT_MIN_CPU_LOAD;
 
@@ -836,8 +839,11 @@ static int __init cpufreq_smartass2_init(void)
 	}
 
 	// Scale up is high priority
-	up_wq = create_singlethread_workqueue("ksmartass2_up");
-	down_wq = create_workqueue("ksmartass2_down");
+	// FIXME
+ 	up_wq = alloc_workqueue("ksmartass2_up", WQ_HIGHPRI, 1);
+ 	down_wq = alloc_workqueue("ksmartass2_down", 0, 1);
+ 	//up_wq = create_rt_workqueue("ksmartass2_up");
+ 	//down_wq = create_workqueue("ksmartass2_down");
  	if (!up_wq || !down_wq)
 		return -ENOMEM;
 
