@@ -40,6 +40,10 @@ dir /cache 755 0 0
 dir /sdcard 755 0 0
 dir /bigmem_libs 755 0 0
 dir /default_libs 755 0 0
+dir /tmp 755 0 0
+# aroma fm
+file /tmp/aromafm.zip source/usr/galaxysmtd_initramfs_files/tmp/aromafm.zip 755 0 0
+file /tmp/aromafm.zip.cfg source/usr/galaxysmtd_initramfs_files/tmp/aromafm.zip.cfg 755 0 0
 # bigmem libs
 file /bigmem_libs/libOMX.SEC.AVC.Decoder.so source/usr/galaxysmtd_initramfs_files/bigmem_libs/libOMX.SEC.AVC.Decoder.so 755 0 0
 file /bigmem_libs/libOMX.SEC.AVC.Encoder.so source/usr/galaxysmtd_initramfs_files/bigmem_libs/libOMX.SEC.AVC.Encoder.so 755 0 0
