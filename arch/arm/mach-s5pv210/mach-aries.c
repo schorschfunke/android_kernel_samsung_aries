@@ -53,7 +53,6 @@
 #include <mach/regs-gpio.h>
 #endif
 
-#include <mach/voltages.h>
 #include <linux/usb/gadget.h>
 #include <linux/fsa9480.h>
 #include <linux/pn544.h>
@@ -339,13 +338,36 @@ static struct s3cfb_lcd s6e63m0 = {
 #define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_MFC0_XL (11264 * SZ_1K)
 #define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_MFC1_XL (11264 * SZ_1K)
 
-#define S5PV210_VIDEO_SAMSUNG_MEMSIZE_NOCAM (0 * SZ_1K)
+#ifdef CONFIG_S5PV210_XL
+#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMC0 (11264 * SZ_1K)
+#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMC2 (11264 * SZ_1K)
+#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_MFC0 (11264 * SZ_1K)
+#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_MFC1 (11264 * SZ_1K)
+#elif defined CONFIG_S5PV210_TESTMEM
+#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMC0 (8688 * SZ_1K)
+#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMC2 (8688 * SZ_1K)
+#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_MFC0 (13312 * SZ_1K)
+#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_MFC1 (21504 * SZ_1K)
+
+#elif defined CONFIG_S5PV210_XL_BIGMEM
+#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMC0 (5000 * SZ_1K)
+#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMC2 (5000 * SZ_1K)
+#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_MFC0 (11264 * SZ_1K)
+#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_MFC1 (11264 * SZ_1K)
+
+#elif defined CONFIG_S5PV210_XL_HUGHMEM
+#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMC0 (0 * SZ_1K)
+#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMC2 (0 * SZ_1K)
+#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_MFC0 (11264 * SZ_1K)
+#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_MFC1 (11264 * SZ_1K)
+
+#else
 
 #define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMC0 (11264 * SZ_1K)
 #define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMC2 (11264 * SZ_1K)
 #define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_MFC0 (14336 * SZ_1K)
 #define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_MFC1 (21504 * SZ_1K)
-
+#endif
 #define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMD (S5PV210_LCD_WIDTH * \
 					     S5PV210_LCD_HEIGHT * 4 * \
 					     (CONFIG_FB_S3C_NR_BUFFERS + \
@@ -446,44 +468,40 @@ static struct s5p_media_device aries_media_devs[] = {
 static struct s5pv210_cpufreq_voltage smdkc110_cpufreq_volt[] = {
 	{
 		.freq	= 1400000,
-		.varm	= DVSARM1,
-		.vint	= DVSINT1,
+		.varm	= 1350000,
+		.vint	= 1150000,
 	}, {
-
 		.freq	= 1300000,
-		.varm	= DVSARM2,
-		.vint	= DVSINT2,
+		.varm	= 1325000,
+		.vint	= 1125000,
 	}, {
-
 		.freq	= 1200000,
-		.varm	= DVSARM3,
-		.vint	= DVSINT3,
+		.varm	= 1275000,
+		.vint	= 1100000,
 	}, {
 		.freq	= 1100000,
-		.varm	= DVSARM3,
-		.vint	= DVSINT3,
+		.varm	= 1275000,
+		.vint	= 1100000,
 	}, {
 		.freq	= 1000000,
-		.varm	= DVSARM4,
-		.vint	= DVSINT4,
+		.varm	= 1275000,
+		.vint	= 1100000,
 	}, {
-
 		.freq	=  800000,
-		.varm	= DVSARM5,
-		.vint	= DVSINT5,
+		.varm	= 1200000,
+		.vint	= 1100000,
 	}, {
-
 		.freq	=  400000,
-		.varm	= DVSARM6,
-		.vint	= DVSINT5,
+		.varm	= 1050000,
+		.vint	= 1100000,
 	}, {
 		.freq	=  200000,
-		.varm	= DVSARM7,
-		.vint	= DVSINT5,
+		.varm	=  950000,
+		.vint	= 1100000,
 	}, {
 		.freq	=  100000,
-		.varm	= DVSARM8,
-		.vint	= DVSINT6,
+		.varm	=  950000,
+		.vint	= 1000000,
 	},
 };
 
@@ -767,7 +785,7 @@ static struct regulator_init_data aries_buck1_data = {
 		.valid_ops_mask	= REGULATOR_CHANGE_VOLTAGE |
 				  REGULATOR_CHANGE_STATUS,
 		.state_mem	= {
-			.uV	= ARMBOOT,
+			.uV	= 1250000,
 			.mode	= REGULATOR_MODE_NORMAL,
 			.disabled = 1,
 		},
@@ -785,7 +803,7 @@ static struct regulator_init_data aries_buck2_data = {
 		.valid_ops_mask	= REGULATOR_CHANGE_VOLTAGE |
 				  REGULATOR_CHANGE_STATUS,
 		.state_mem	= {
-			.uV	= INTBOOT,
+			.uV	= 1100000,
 			.mode	= REGULATOR_MODE_NORMAL,
 			.disabled = 1,
 		},
@@ -4928,7 +4946,7 @@ static int wlan_power_en(int onoff)
 		s3c_gpio_slp_setpull_updown(GPIO_WLAN_BT_EN,
 					S3C_GPIO_PULL_NONE);
 
-		msleep(200);
+		msleep(80);
 	} else {
 		gpio_set_value(GPIO_WLAN_nRST, GPIO_LEVEL_LOW);
 		s3c_gpio_slp_cfgpin(GPIO_WLAN_nRST, S3C_GPIO_SLP_OUT0);
