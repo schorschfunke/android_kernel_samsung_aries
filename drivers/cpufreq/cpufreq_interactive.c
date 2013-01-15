@@ -70,6 +70,7 @@ static u64 boostpulse_boosted_time;
 #define DEFAULT_BOOSTPULSE_DURATION	500000
 #define MAX_BOOSTPULSE_DURATION		5000000
 static int boostpulse_duration;
+
 /* Go to hi speed when CPU load at or above this value. */
 #define DEFAULT_GO_HISPEED_LOAD 85
 static unsigned long go_hispeed_load;
@@ -480,7 +481,6 @@ static void cpufreq_interactive_boost(void)
 		wake_up_process(speedchange_task);
 }
 
-
 static ssize_t show_hispeed_freq(struct kobject *kobj,
 				 struct attribute *attr, char *buf)
 {
@@ -593,7 +593,6 @@ static ssize_t store_timer_rate(struct kobject *kobj,
 static struct global_attr timer_rate_attr = __ATTR(timer_rate, 0644,
 		show_timer_rate, store_timer_rate);
 
-
 static ssize_t show_boost(struct kobject *kobj, struct attribute *attr,
 			  char *buf)
 {
@@ -629,6 +628,7 @@ static ssize_t show_boostpulse(struct kobject *kobj,
 {
 	return sprintf(buf, "%lu\n", boostpulse_duration);
 }
+
 static ssize_t store_boostpulse(struct kobject *kobj, struct attribute *attr,
 				const char *buf, size_t count)
 {
@@ -644,6 +644,7 @@ static ssize_t store_boostpulse(struct kobject *kobj, struct attribute *attr,
 		boostpulse_duration = val;
 	else
 		boostpulse_duration = DEFAULT_BOOSTPULSE_DURATION;
+
 	trace_cpufreq_interactive_boost("pulse");
 	cpufreq_interactive_boost();
 	return count;
@@ -687,6 +688,7 @@ static int cpufreq_interactive_idle_notifier(struct notifier_block *nb,
 static struct notifier_block cpufreq_interactive_idle_nb = {
 	.notifier_call = cpufreq_interactive_idle_notifier,
 };
+
 static int cpufreq_governor_interactive(struct cpufreq_policy *policy,
 		unsigned int event)
 {
@@ -739,9 +741,6 @@ static int cpufreq_governor_interactive(struct cpufreq_policy *policy,
 			return rc;
 
 		idle_notifier_register(&cpufreq_interactive_idle_nb);
-		cpufreq_register_notifier(
-			&cpufreq_notifier_block, CPUFREQ_TRANSITION_NOTIFIER);
-
 		break;
 
 	case CPUFREQ_GOV_STOP:
@@ -780,7 +779,6 @@ static int cpufreq_governor_interactive(struct cpufreq_policy *policy,
 	}
 	return 0;
 }
-
 
 static int __init cpufreq_interactive_init(void)
 {
