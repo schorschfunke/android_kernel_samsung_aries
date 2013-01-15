@@ -28,7 +28,6 @@
 #include <linux/cpu.h>
 #include <linux/completion.h>
 #include <linux/mutex.h>
-#include <linux/sched.h>
 #include <linux/syscore_ops.h>
 
 #include <trace/events/power.h>
@@ -1453,12 +1452,6 @@ int __cpufreq_driver_target(struct cpufreq_policy *policy,
 		target_freq, relation);
 	if (cpu_online(policy->cpu) && cpufreq_driver->target)
 		retval = cpufreq_driver->target(policy, target_freq, relation);
-	if (likely(retval != -EINVAL)) {
-		if (target_freq == policy->max)
-			cpu_nonscaling(policy->cpu);
-		else
-			cpu_scaling(policy->cpu);
-	}
 
 	return retval;
 }
@@ -1809,6 +1802,8 @@ static struct notifier_block __refdata cpufreq_cpu_notifier = {
     .notifier_call = cpufreq_cpu_callback,
 };
 
+
+
 /*********************************************************************
  *               REGISTER / UNREGISTER CPUFREQ DRIVER                *
  *********************************************************************/
@@ -1926,7 +1921,7 @@ static int __init cpufreq_core_init(void)
 						&cpu_sysdev_class.kset.kobj);
 	BUG_ON(!cpufreq_global_kobject);
 	register_syscore_ops(&cpufreq_syscore_ops);
-
+	
 	return 0;
 }
 core_initcall(cpufreq_core_init);
