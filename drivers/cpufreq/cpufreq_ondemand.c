@@ -22,7 +22,6 @@
 #include <linux/tick.h>
 #include <linux/ktime.h>
 #include <linux/sched.h>
-#include <linux/earlysuspend.h>
 
 /*
  * dbs is used in this file as a shortform for demandbased switching
@@ -39,7 +38,7 @@
 #define MIN_FREQUENCY_UP_THRESHOLD		(11)
 #define MAX_FREQUENCY_UP_THRESHOLD		(100)
 #define DEFAULT_FREQ_BOOST_TIME			(500000)
-#define MAX_FREQ_BOOST_TIME			(5000000)
+#define MAX_FREQ_BOOST_TIME				(5000000)
 
 u64 freq_boosted_time;
 
@@ -463,7 +462,6 @@ static void dbs_check_cpu(struct cpu_dbs_info_s *this_dbs_info)
 
 	this_dbs_info->freq_lo = 0;
 	policy = this_dbs_info->cur_policy;
-
 	/* Only core0 controls the boost */
 	if (dbs_tuners_ins.boosted && policy->cpu == 0) {
 		if (ktime_to_us(ktime_get()) - freq_boosted_time >=
@@ -556,11 +554,8 @@ static void dbs_check_cpu(struct cpu_dbs_info_s *this_dbs_info)
 	}
 
 	/* Check for frequency increase */
-
-  if (max_load_freq > dbs_tuners_ins.up_threshold * policy->cur) {
-
-
-	/* If switching to max speed, apply sampling_down_factor */
+	if (max_load_freq > dbs_tuners_ins.up_threshold * policy->cur) {
+		/* If switching to max speed, apply sampling_down_factor */
 		if (policy->cur < policy->max)
 			this_dbs_info->rate_mult =
 				dbs_tuners_ins.sampling_down_factor;
@@ -592,8 +587,9 @@ static void dbs_check_cpu(struct cpu_dbs_info_s *this_dbs_info)
 				(dbs_tuners_ins.up_threshold -
 				 dbs_tuners_ins.down_differential);
 
-	if (dbs_tuners_ins.boosted && freq_next < boostfreq) {
-      	freq_next = boostfreq;
+		if (dbs_tuners_ins.boosted &&
+				freq_next < boostfreq) {
+			freq_next = boostfreq;
 		}
 		/* No longer fully busy, reset rate_mult */
 		this_dbs_info->rate_mult = 1;
