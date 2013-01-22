@@ -79,6 +79,7 @@ bigmem=0
 		busybox grep -q bootmode=5 /proc/cmdline; then
     		busybox echo "copying XL_mem libs"
     			busybox cp bigmem_libs/*.so /system/lib/
+    			busybox cp default_libs/*.xml /system/etc/
     		busybox echo 1 > /sys/kernel/bigmem/enable
 
 	elif busybox grep -q bootmode=7 /proc/cmdline || 
