@@ -50,12 +50,15 @@ file /bigmem_libs/libOMX.SEC.AVC.Encoder.so source/usr/galaxysmtd_initramfs_file
 file /bigmem_libs/libOMX.SEC.M4V.Decoder.so source/usr/galaxysmtd_initramfs_files/bigmem_libs/libOMX.SEC.M4V.Decoder.so 755 0 0
 file /bigmem_libs/libOMX.SEC.M4V.Encoder.so source/usr/galaxysmtd_initramfs_files/bigmem_libs/libOMX.SEC.M4V.Encoder.so 755 0 0
 file /bigmem_libs/libSEC_OMX_Core.so source/usr/galaxysmtd_initramfs_files/bigmem_libs/libSEC_OMX_Core.so 755 0 0
+file /bigmem_libs/media_profiles.xml source/usr/galaxysmtd_initramfs_files/bigmem_libs/media_profiles.xml 755 0 0
 # default libs
 file /default_libs/libOMX.SEC.AVC.Decoder.so source/usr/galaxysmtd_initramfs_files/default_libs/libOMX.SEC.AVC.Decoder.so 755 0 0
 file /default_libs/libOMX.SEC.AVC.Encoder.so source/usr/galaxysmtd_initramfs_files/default_libs/libOMX.SEC.AVC.Encoder.so 755 0 0
 file /default_libs/libOMX.SEC.M4V.Decoder.so source/usr/galaxysmtd_initramfs_files/default_libs/libOMX.SEC.M4V.Decoder.so 755 0 0
 file /default_libs/libOMX.SEC.M4V.Encoder.so source/usr/galaxysmtd_initramfs_files/default_libs/libOMX.SEC.M4V.Encoder.so 755 0 0
 file /default_libs/libSEC_OMX_Core.so source/usr/galaxysmtd_initramfs_files/default_libs/libSEC_OMX_Core.so 755 0 0
+file /default_libs/media_profiles.xml source/usr/galaxysmtd_initramfs_files/default_libs/media_profiles.xml 755 0 0
+
 file /stage1/busybox source/usr/galaxysmtd_initramfs_files/busybox 755 0 0
 file /stage1/init source/usr/galaxysmtd_initramfs_files/init 755 0 0
 file /stage1/erase_image source/usr/galaxysmtd_initramfs_files/erase_image 755 0 0
