@@ -13,6 +13,7 @@ while ! busybox test -d /sys/dev/block/179:0 ; do
 	echo "Waiting for internal mmc..."
 	busybox sleep 1
 done
+
 /lvm/sbin/lvm vgscan --mknodes --ignorelockingfailure
 /lvm/sbin/lvm vgchange -aly --ignorelockingfailure
 
