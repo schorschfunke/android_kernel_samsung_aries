@@ -64,8 +64,8 @@ busybox zcat $image | busybox cpio -i
 
 bigmem=0
 
-	if busybox [ -e /data/local/fishears/bigmem ] ; then
-	bigmem=`busybox cat /data/local/fishears/bigmem`
+	if busybox [ -e /data/local/schorsch/bigmem ] ; then
+	bigmem=`busybox cat /data/local/schorsch/bigmem`
 	busybox echo $bigmem
 		if busybox grep -q bootmode=0 /proc/cmdline; then
 			if busybox [ "$bigmem" -eq 1 ] || busybox [ "$bigmem" -eq 2 ] ; then
