@@ -29,12 +29,8 @@
 #include <linux/completion.h>
 #include <linux/mutex.h>
 #include <linux/syscore_ops.h>
-#include <linux/earlysuspend.h>
 
 #include <trace/events/power.h>
-
-static unsigned int lock_sc_min = 0;
-extern unsigned long get_cpuminfreq(void);
 
 /**
  * The "cpufreq driver" - the arch- or hardware-dependent low
@@ -396,52 +392,8 @@ static ssize_t store_##file_name					\
 	return ret ? ret : count;					\
 }
 
-//store_one(scaling_min_freq, min);
+store_one(scaling_min_freq, min);
 store_one(scaling_max_freq, max);
-
-static ssize_t store_scaling_min_freq
-(struct cpufreq_policy *policy, const char *buf, size_t count)
-{
-	unsigned int ret = -EINVAL;
-	struct cpufreq_policy new_policy;
-
-	if (lock_sc_min)
-		return -EINVAL;
-
-	ret = cpufreq_get_policy(&new_policy, policy->cpu);
-	if (ret)
-		return -EINVAL;
-
-	ret = sscanf(buf, "%u", &new_policy.min);
-	if (ret != 1)
-		return -EINVAL;
-
-	ret = __cpufreq_set_policy(policy, &new_policy);
-	policy->user_policy.min = policy->min;
-
-	return ret ? ret : count;
-}
-
-static ssize_t show_lock_scaling_min(struct cpufreq_policy *policy, char *buf)
-{
-	return sprintf(buf, "%u\n", lock_sc_min);
-}
-
-static ssize_t store_lock_scaling_min(struct cpufreq_policy *policy, const char *buf, size_t count)
-{
-	unsigned int ret = -EINVAL;
-	unsigned int input;
-
-	ret = sscanf(buf, "%u", &input);
-	if (ret != 1 || input > 1)
-		return -EINVAL;
-
-	lock_sc_min = input;
-	policy->min = policy->cpuinfo.min_freq = get_cpuminfreq();
-	policy->user_policy.min = policy->min;
-
-	return ret ? ret : count;
-}
 
 /**
  * show_cpuinfo_cur_freq - current CPU frequency as detected by hardware
@@ -481,6 +433,9 @@ static ssize_t store_scaling_governor(struct cpufreq_policy *policy,
 	unsigned int ret = -EINVAL;
 	char	str_governor[16];
 	struct cpufreq_policy new_policy;
+	char *envp[3];
+	char buf1[64];
+	char buf2[64];
 
 	ret = cpufreq_get_policy(&new_policy, policy->cpu);
 	if (ret)
@@ -500,6 +455,13 @@ static ssize_t store_scaling_governor(struct cpufreq_policy *policy,
 
 	policy->user_policy.policy = policy->policy;
 	policy->user_policy.governor = policy->governor;
+
+	snprintf(buf1, sizeof(buf1), "GOV=%s", policy->governor->name);
+	snprintf(buf2, sizeof(buf2), "CPU=%u", policy->cpu);
+	envp[0] = buf1;
+	envp[1] = buf2;
+	envp[2] = NULL;
+	kobject_uevent_env(cpufreq_global_kobject, KOBJ_ADD, envp);
 
 	if (ret)
 		return ret;
@@ -613,8 +575,6 @@ static ssize_t store_UV_mV_table(struct cpufreq_policy *policy, const char *buf,
 	return customvoltage_armvolt_write(NULL, NULL, buf, count);
 }
 #endif
-
-
 /**
  * show_scaling_driver - show the current cpufreq HW/BIOS limitation
  */
@@ -644,7 +604,6 @@ cpufreq_freq_attr_rw(scaling_min_freq);
 cpufreq_freq_attr_rw(scaling_max_freq);
 cpufreq_freq_attr_rw(scaling_governor);
 cpufreq_freq_attr_rw(scaling_setspeed);
-cpufreq_freq_attr_rw(lock_scaling_min);
 #ifdef CONFIG_CUSTOM_VOLTAGE
 cpufreq_freq_attr_rw(UV_mV_table);
 #endif
@@ -661,7 +620,6 @@ static struct attribute *default_attrs[] = {
 	&scaling_driver.attr,
 	&scaling_available_governors.attr,
 	&scaling_setspeed.attr,
-	&lock_scaling_min.attr,
 #ifdef CONFIG_CUSTOM_VOLTAGE
 	&UV_mV_table.attr,
 #endif
@@ -1494,7 +1452,7 @@ int __cpufreq_driver_target(struct cpufreq_policy *policy,
 		target_freq, relation);
 	if (cpu_online(policy->cpu) && cpufreq_driver->target)
 		retval = cpufreq_driver->target(policy, target_freq, relation);
-
+	
 	return retval;
 }
 EXPORT_SYMBOL_GPL(__cpufreq_driver_target);
@@ -1522,6 +1480,22 @@ no_policy:
 	return ret;
 }
 EXPORT_SYMBOL_GPL(cpufreq_driver_target);
+
+int __cpufreq_driver_getavg(struct cpufreq_policy *policy, unsigned int cpu)
+{
+	int ret = 0;
+
+	policy = cpufreq_cpu_get(policy->cpu);
+	if (!policy)
+		return -EINVAL;
+
+	if (cpu_online(cpu) && cpufreq_driver->getavg)
+		ret = cpufreq_driver->getavg(policy, cpu);
+
+	cpufreq_cpu_put(policy);
+	return ret;
+}
+EXPORT_SYMBOL_GPL(__cpufreq_driver_getavg);
 
 /*
  * when "event" is CPUFREQ_GOV_LIMITS
@@ -1903,6 +1877,7 @@ err_null_driver:
 }
 EXPORT_SYMBOL_GPL(cpufreq_register_driver);
 
+
 /**
  * cpufreq_unregister_driver - unregister the current CPUFreq driver
  *
@@ -1944,9 +1919,7 @@ static int __init cpufreq_core_init(void)
 						&cpu_sysdev_class.kset.kobj);
 	BUG_ON(!cpufreq_global_kobject);
 	register_syscore_ops(&cpufreq_syscore_ops);
-
-	/* register_early_suspend(&_powersave_early_suspend); */
-
+	
 	return 0;
 }
 core_initcall(cpufreq_core_init);
