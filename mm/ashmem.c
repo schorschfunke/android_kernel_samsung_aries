@@ -435,6 +435,8 @@ static int set_name(struct ashmem_area *asma, void __user *name)
 static int get_name(struct ashmem_area *asma, void __user *name)
 {
 	int ret = 0;
+	char lname[ASHMEM_NAME_LEN];
+	size_t len;
 
 	mutex_lock(&ashmem_mutex);
 	if (asma->name[ASHMEM_NAME_PREFIX_LEN] != '\0') {
