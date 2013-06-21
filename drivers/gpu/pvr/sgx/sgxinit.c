@@ -2188,7 +2188,8 @@ chk_exit:
 	return PVRSRV_OK;
 #else
 #if !defined (NO_HARDWARE)
-  #if( (psSGXFeatures->ui32DDKVersion == ((PVRVERSION_MAJ << 16) | (PVRVERSION_MIN << 8) | PVRVERSION_BRANCH) )) {
+  #if( (psSGXFeatures->ui32DDKVersion == ((PVRVERSION_MAJ << 16) | (PVRVERSION_MIN << 8) |
+    PVRVERSION_BRANCH) )) {
     psSGXFeatures->ui32DDKBuild = dddk;
     eError = PVRSRV_OK;
   }
