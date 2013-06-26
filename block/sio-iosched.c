@@ -182,7 +182,7 @@ sio_dispatch_request(struct sio_data *sd, struct request *rq)
 
 	if (rq_data_dir(rq)) {
 		sd->starved = 0;
-          else {
+        } else {
 	  if (!list_empty(&sd->fifo_list[SYNC][WRITE]) || 
 	      !list_empty(&sd->fifo_list[ASYNC][WRITE])) 
             sd->starved++;
