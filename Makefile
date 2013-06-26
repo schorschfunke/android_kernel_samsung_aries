@@ -193,7 +193,7 @@ SUBARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/ \
 # Note: Some architectures assign CROSS_COMPILE in their arch/*/Makefile
 export KBUILD_BUILDHOST := $(SUBARCH)
 ARCH		?= arm
-CROSS_COMPILE	?= /home/jb/datadrive/android/system/prebuilt/linux-x86/toolchain/linaro/bin/arm-linux-gnueabihf-
+CROSS_COMPILE	?= /var/android/aokp/prebuilt/linux-x86/toolchain/linaro/bin/arm-gnueabi-
 
 # Architecture as present in compile.h
 UTS_MACHINE 	:= $(ARCH)
@@ -245,8 +245,8 @@ CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
 
 HOSTCC       = gcc
 HOSTCXX      = g++
-HOSTCFLAGS   = -Wall -Wmissing-prototypes -Wstrict-prototypes -O3 -fomit-frame-pointer
-HOSTCXXFLAGS = -O3 -Wall -fno-delete-null-pointer-checks
+HOSTCFLAGS   = -Wall -Wmissing-prototypes -Wstrict-prototypes -Ofast -fomit-frame-pointer
+HOSTCXXFLAGS = -Ofast -Wall -fno-delete-null-pointer-checks
 
 # Decide whether to build built-in, modular, or both.
 # Normally, just do built-in.
@@ -347,10 +347,10 @@ CHECK		= sparse
 
 CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
 		  -Wbitwise -Wno-return-void $(CF)
-CFLAGS_MODULE   = -DMODULE -O3 -mcpu=cortex-a9 -mfpu=neon -march=armv7-a -mtune=cortex-a9
+CFLAGS_MODULE   = -DMODULE -Ofast -mcpu=cortex-a9 -mfpu=neon -march=armv7-a -mtune=cortex-a9
 AFLAGS_MODULE   =
 LDFLAGS_MODULE  =
-CFLAGS_KERNEL	= -O3 -mcpu=cortex-a9 -mfpu=neon -march=armv7-a -mtune=cortex-a9  -funswitch-loops -fpredictive-commoning -fgcse-after-reload -ftree-vectorize -fipa-cp-clone -fsingle-precision-constant -pipe
+CFLAGS_KERNEL	= -Ofast -mcpu=cortex-a9 -mfpu=neon -march=armv7-a -mtune=cortex-a9  -funswitch-loops -fpredictive-commoning -fgcse-after-reload -ftree-vectorize -fipa-cp-clone -fsingle-precision-constant -pipe
 AFLAGS_KERNEL	=
 CFLAGS_GCOV	= -fprofile-arcs -ftest-coverage
 
@@ -372,7 +372,7 @@ KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
 		   -mno-unaligned-access \
 		   -mtune=cortex-a8 -mfpu=neon -ftree-vectorize -mfloat-abi=softfp
 KBUILD_AFLAGS_KERNEL :=
-KBUILD_CFLAGS_KERNEL := -O3 -mcpu=cortex-a9 -mfpu=neon -march=armv7-a -mtune=cortex-a9 -funswitch-loops -fpredictive-commoning -fgcse-after-reload -ftree-vectorize -fipa-cp-clone -fsingle-precision-constant -pipe
+KBUILD_CFLAGS_KERNEL := -Ofast -mcpu=cortex-a9 -mfpu=neon -march=armv7-a -mtune=cortex-a9 -funswitch-loops -fpredictive-commoning -fgcse-after-reload -ftree-vectorize -fipa-cp-clone -fsingle-precision-constant -pipe
 KBUILD_AFLAGS   := -D__ASSEMBLY__
 KBUILD_AFLAGS_MODULE  := -DMODULE
 KBUILD_CFLAGS_MODULE  := -DMODULE
@@ -564,7 +564,7 @@ all: vmlinux
 ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
 KBUILD_CFLAGS	+= -Os
 else
-KBUILD_CFLAGS	+= -O3
+KBUILD_CFLAGS	+= -Ofast
 endif
 
 include $(srctree)/arch/$(SRCARCH)/Makefile
