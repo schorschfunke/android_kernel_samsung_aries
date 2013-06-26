@@ -178,6 +178,7 @@ config CPU_FREQ_GOV_ONDEMAND
 	  For details, take a look at linux/Documentation/cpu-freq.
 
 	  If in doubt, say N.
+
 config CPU_FREQ_GOV_INTERACTIVE
 	tristate "'interactive' cpufreq policy governor"
 	help
@@ -191,9 +192,9 @@ config CPU_FREQ_GOV_INTERACTIVE
 	  To compile this driver as a module, choose M here: the
 	  module will be called cpufreq_interactive.
 
-          For details, take a look at linux/Documentation/cpu-freq.
+	  For details, take a look at linux/Documentation/cpu-freq.
 
-         If in doubt, say N.
+	  If in doubt, say N.
  
 config CPU_FREQ_GOV_CONSERVATIVE
 	tristate "'conservative' cpufreq governor"
