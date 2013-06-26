@@ -1,8 +1,9 @@
 /*
- * Simple IO scheduler
+ * Simple IO scheduler plus
  * Based on Noop, Deadline and V(R) IO schedulers.
  *
  * Copyright (C) 2012 Miguel Boton <mboton@gmail.com>
+ *           (C) 2013 Boy Petersen <boypetersen@gmail.com> 
  *
  *
  * This algorithm does not do any kind of sorting, as it is aimed for
@@ -12,6 +13,9 @@
  * Asynchronous and synchronous requests are not treated separately, but
  * we relay on deadlines to ensure fairness.
  *
+ * The plus version fixes writes_starved not being initialized on startup
+ * and also modifies the write starvation counting logic.
+ * 
  */
 #include <linux/blkdev.h>
 #include <linux/elevator.h>
@@ -23,8 +27,8 @@
 enum { ASYNC, SYNC };
 
 /* Tunables */
-static const int sync_read_expire = HZ / 2;	/* max time before a sync read is submitted. */
-static const int sync_write_expire = 2 * HZ;	/* max time before a sync write is submitted. */
+static const int sync_read_expire = 4 * HZ;	/* max time before a sync read is submitted. */
+static const int sync_write_expire = 16 * HZ;	/* max time before a sync write is submitted. */
 
 static const int async_read_expire = 4 * HZ;	/* ditto for async, these limits are SOFT! */
 static const int async_write_expire = 16 * HZ;	/* ditto for async, these limits are SOFT! */
@@ -176,10 +180,13 @@ sio_dispatch_request(struct sio_data *sd, struct request *rq)
 
 	sd->batched++;
 
-	if (rq_data_dir(rq))
+	if (rq_data_dir(rq)) {
 		sd->starved = 0;
-	else
-		sd->starved++;
+          else {
+	  if (!list_empty(&sd->fifo_list[SYNC][WRITE]) || 
+	      !list_empty(&sd->fifo_list[ASYNC][WRITE])) 
+            sd->starved++;
+          }
 }
 
 static int
@@ -265,6 +272,7 @@ sio_init_queue(struct request_queue *q)
 	sd->fifo_expire[ASYNC][READ] = async_read_expire;
 	sd->fifo_expire[ASYNC][WRITE] = async_write_expire;
 	sd->fifo_batch = fifo_batch;
+	sd->writes_starved = writes_starved;
 
 	return sd;
 }
@@ -391,6 +399,6 @@ static void __exit sio_exit(void)
 module_init(sio_init);
 module_exit(sio_exit);
 
-MODULE_AUTHOR("Miguel Boton");
+MODULE_AUTHOR("Miguel Boton, Boy Petersen");
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("Simple IO scheduler");
