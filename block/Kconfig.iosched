@@ -40,34 +40,11 @@ config IOSCHED_ZEN
 	    Should work best with devices where there is no travel delay.
 	  
 config IOSCHED_FIFO
-<<<<<<< HEAD
 	  bool
 	  default y
 	  ---help---
 	    A no-op scheduler that really does nothing.
 	  
-=======
-	bool
-	default y
-	---help---
-	  A no-op scheduler that really does nothing.
-
-config IOSCHED_VR
-	tristate "V(R) I/O scheduler"
-	default n
-	---help---
-	  Requests are chosen according to SSTF with a penalty of rev_penalty
-	  for switching head direction.
-
-config IOSCHED_FIOPS
-	tristate "IOPS based I/O scheduler"
-	default y
-	---help---
-	  This is an IOPS based I/O scheduler. It will try to distribute
-	  IOPS equally among all processes in the system. It's mainly for
-	  Flash based storage.
-
->>>>>>> 0da7562... Added FIOPS I/O Scheduler
 config IOSCHED_CFQ
 	tristate "CFQ I/O scheduler"
 	# If BLK_CGROUP is a module, CFQ has to be built as module.
@@ -160,9 +137,6 @@ choice
 	config DEFAULT_FIFO
 		bool "fifo"
 
-	config DEFAULT_FIOPS
-		bool "FIOPS" if IOSCHED_FIOPS=y
-
 endchoice
 
 config DEFAULT_IOSCHED
@@ -174,13 +148,7 @@ config DEFAULT_IOSCHED
 	default "noop" if DEFAULT_NOOP
 	default "sio" if DEFAULT_SIO
 	default "zen" if DEFAULT_ZEN
-<<<<<<< HEAD
 	default "fifo" if DEFAULT_FIFO
-=======
-	default "bfq" if DEFAULT_BFQ
-	default "vr" if DEFAULT_VR
-	default "fiops" if DEFAULT_FIOPS
->>>>>>> 0da7562... Added FIOPS I/O Scheduler
 endmenu
 
 endif
