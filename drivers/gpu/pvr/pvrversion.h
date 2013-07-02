@@ -35,7 +35,7 @@
 #define PVRVERSION_BRANCH            18
 
 #define PVRVERSION_FAMILY           "sgxddk"
-#define PVRVERSION_BRANCHNAME       "1.8.GOOGLENEXUS.ED945322"
+#define PVRVERSION_BRANCHNAME       "1.8"
 #define PVRVERSION_BUILD             2112805
 #define PVRVERSION_BSCONTROL        "CustomerGoogle_Android_ogles1_ogles2_GPL"
 
