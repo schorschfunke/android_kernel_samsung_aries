@@ -347,10 +347,11 @@ CHECK		= sparse
 
 CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
 		  -Wbitwise -Wno-return-void $(CF)
-CFLAGS_MODULE   = -DMODULE -Ofast -mcpu=cortex-a8 -mfpu=neon -march=armv7-a -mtune=cortex-a8
+OPTIMAZION_FLAGS= -Ofast -march=armv7-a -mtune=cortex-a8 -mfpu=neon -fpredictive-commoning -ffast-math -funswitch-loops -fpredictive-commoning -fgcse-after-reload -ftree-vectorize -fipa-cp-clone -fgcse-lm -fgcse-sm -fsched-spec-load -fforce-addr -pipe -funsafe-math-optimizations
+CFLAGS_MODULE   = -DMODULE $(OPTIMAZION_FLAGS)
 AFLAGS_MODULE   =
 LDFLAGS_MODULE  =
-CFLAGS_KERNEL	= -Ofast -mcpu=cortex-a8 -mfpu=neon -march=armv7-a -mtune=cortex-a8  -funswitch-loops -fpredictive-commoning -fgcse-after-reload -ftree-vectorize -fipa-cp-clone -fsingle-precision-constant -pipe
+CFLAGS_KERNEL	= $(OPTIMAZION_FLAGS)
 AFLAGS_KERNEL	=
 CFLAGS_GCOV	= -fprofile-arcs -ftest-coverage
 
