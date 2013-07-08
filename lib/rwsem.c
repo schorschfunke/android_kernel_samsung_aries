@@ -2,11 +2,14 @@
  *
  * Written by David Howells (dhowells@redhat.com).
  * Derived from arch/i386/kernel/semaphore.c
+ *
+ * Writer lock-stealing by Alex Shi <alex.shi@intel.com>
+ * and Michel Lespinasse <walken@google.com>
  */
 #include <linux/rwsem.h>
 #include <linux/sched.h>
 #include <linux/init.h>
-#include <linux/module.h>
+#include <linux/export.h>
 
 /*
  * Initialize an rwsem:
@@ -22,7 +25,7 @@ void __init_rwsem(struct rw_semaphore *sem, const char *name,
 	lockdep_init_map(&sem->dep_map, name, key, 0);
 #endif
 	sem->count = RWSEM_UNLOCKED_VALUE;
-	spin_lock_init(&sem->wait_lock);
+	raw_spin_lock_init(&sem->wait_lock);
 	INIT_LIST_HEAD(&sem->wait_list);
 }
 
@@ -61,7 +64,7 @@ __rwsem_do_wake(struct rw_semaphore *sem, enum rwsem_wake_type wake_type)
 	struct rwsem_waiter *waiter;
 	struct task_struct *tsk;
 	struct list_head *next;
-	long woken, loop, adjustment;
+	long oldcount, woken, loop, adjustment;
 
 	waiter = list_entry(sem->wait_list.next, struct rwsem_waiter, list);
 	if (waiter->type == RWSEM_WAITING_FOR_WRITE) {
@@ -72,7 +75,7 @@ __rwsem_do_wake(struct rw_semaphore *sem, enum rwsem_wake_type wake_type)
 			 * will block as they will notice the queued writer.
 			 */
 			wake_up_process(waiter->task);
-		return sem;
+		goto out;
 	}
 
 	/* Writers might steal the lock before we grant it to the next reader.
@@ -82,28 +85,15 @@ __rwsem_do_wake(struct rw_semaphore *sem, enum rwsem_wake_type wake_type)
 	adjustment = 0;
 	if (wake_type != RWSEM_WAKE_READ_OWNED) {
 		adjustment = RWSEM_ACTIVE_READ_BIAS;
-		while (1) {
-			long oldcount;
-
-			/* A writer stole the lock. */
-			if (unlikely(sem->count & RWSEM_ACTIVE_MASK))
-				return sem;
-
-			if (unlikely(sem->count < RWSEM_WAITING_BIAS)) {
-				cpu_relax();
-				continue;
-			}
-
-			oldcount = rwsem_atomic_update(adjustment, sem)
-								- adjustment;
-			if (likely(oldcount >= RWSEM_WAITING_BIAS))
-				break;
-
-			 /* A writer stole the lock.  Undo our reader grant. */
+ try_reader_grant:
+		oldcount = rwsem_atomic_update(adjustment, sem) - adjustment;
+		if (unlikely(oldcount < RWSEM_WAITING_BIAS)) {
+			/* A writer stole the lock. Undo our reader grant. */
 			if (rwsem_atomic_update(-adjustment, sem) &
 						RWSEM_ACTIVE_MASK)
-				return sem;
+				goto out;
 			/* Last active locker left. Retry waking readers. */
+			goto try_reader_grant;
 		}
 	}
 
@@ -146,6 +136,7 @@ __rwsem_do_wake(struct rw_semaphore *sem, enum rwsem_wake_type wake_type)
 	sem->wait_list.next = next;
 	next->prev = &sem->wait_list;
 
+ out:
 	return sem;
 }
 
